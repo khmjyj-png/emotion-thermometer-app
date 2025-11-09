@@ -1,5 +1,5 @@
-// ⭐⭐ 이 부분을 1단계 C에서 복사한 '웹 앱 URL'로 교체해야 합니다! ⭐⭐
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz4ILErkRe4zV4-KwY4my__2yTCigXkTegJ1giSeWtpXYpZLsn56PhGfK7-9Yy4tVDh/exec'; 
+// ⭐⭐ 🚨 여기를 1단계에서 복사한 '웹 앱 URL'로 정확하게 교체해야 합니다! 🚨 ⭐⭐
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwp2YIl_kgH7n2VwHfEqo5dQtevUzetxmSS8G_lDKVdZMPJVYsB9cxFpyOD1M_tG2i-wg/exec'; 
 
 const submitBtn = document.getElementById('submitBtn');
 const emotionLog = document.getElementById('emotionLog');
@@ -45,10 +45,10 @@ submitBtn.addEventListener('click', async () => {
 
         if (response.ok) {
             document.getElementById('message').textContent = `✅ ${name || '익명'}님의 감정이 기록되었습니다!`;
-            // 제출 성공 후 전체 데이터 다시 불러와서 화면 업데이트
             fetchAndDisplayData(); 
         } else {
             document.getElementById('message').textContent = '❌ 데이터 기록 실패: 서버 응답 오류';
+            console.error('POST 실패 응답:', await response.text());
         }
     } catch (error) {
         document.getElementById('message').textContent = '❌ 데이터 전송 오류: 네트워크 문제 확인';
@@ -61,12 +61,22 @@ submitBtn.addEventListener('click', async () => {
     inputButtons.forEach(btn => btn.classList.remove('selected'));
 });
 
-// 3. 전체 데이터 불러오기 (GET 요청)
+// 3. 전체 데이터 불러오기 (GET 요청) - TEXT 응답 파싱 로직 포함
 async function fetchAndDisplayData() {
     try {
-        // Apps Script의 doGet 함수 호출 (action=getAllData 명령 전달)
         const response = await fetch(`${APPS_SCRIPT_URL}?action=getAllData`); 
-        const allData = await response.json(); 
+        
+        // 🔥 CORS 우회 및 TEXT 응답 처리를 위해 반드시 .text() 후 JSON.parse() 사용
+        const textData = await response.text(); 
+        
+        // Apps Script에서 비어있는 배열을 반환할 때 발생할 수 있는 오류를 방지
+        let allData;
+        try {
+            allData = JSON.parse(textData);
+        } catch (e) {
+            console.error("JSON 파싱 오류:", e, "받은 텍스트:", textData);
+            allData = []; // 파싱 실패 시 빈 데이터로 처리
+        }
         
         updateDisplay(allData); 
     } catch (error) {
@@ -80,17 +90,23 @@ function updateDisplay(data) {
     if (data.length === 0) {
         statusText.textContent = '아직 기록된 학생 데이터가 없습니다.';
         thermometerFill.style.height = '0%';
-        emotionLog.innerHTML = '';
+        if (emotionLog) emotionLog.innerHTML = ''; // 로그가 있다면 초기화
         missionText.textContent = '지금 바로 첫 기록을 남겨보세요!';
         return;
     }
 
-    const totalLevel = data.reduce((sum, entry) => sum + entry.level, 0);
+    // Level 값이 숫자인지 확인하고, 아니면 0으로 처리하여 계산 오류 방지
+    const totalLevel = data.reduce((sum, entry) => {
+        // Apps Script에서 parseInt가 적용되었어도, 다시 안전하게 확인
+        const level = (typeof entry.level === 'number' && !isNaN(entry.level)) ? entry.level : 0;
+        return sum + level;
+    }, 0);
+    
     const averageLevel = totalLevel / data.length;
     
-    // 온도계 높이 계산 (1-5 레벨을 0-100% 높이로 매핑)
+    // 온도계 높이 계산
     const fillPercentage = ((averageLevel - 1) / 4) * 100;
-    thermometerFill.style.height = `${fillPercentage}%`;
+    thermometerFill.style.height = `${Math.max(0, Math.min(100, fillPercentage))}%`;
     
     // 공동체 상태 및 미션 제시
     let statusMsg = `총 ${data.length}명 참여. 평균 감정 온도: ${averageLevel.toFixed(1)}점.`;
@@ -109,10 +125,12 @@ function updateDisplay(data) {
     statusText.textContent = statusMsg;
     missionText.textContent = missionMsg;
     
-    // 최근 기록 로그 업데이트
-    emotionLog.innerHTML = data.slice(-5).reverse().map(entry => 
-        `<li>[${new Date(entry.timestamp).toLocaleTimeString()}] ${entry.name || '익명'}: ${entry.level}점. (키워드: ${entry.keywords})</li>`
-    ).join('');
+    // 로그 표시 (emotionLog가 존재하는 경우에만 실행)
+    if (emotionLog) {
+        emotionLog.innerHTML = data.slice(-5).reverse().map(entry => 
+            `<li>[${new Date(entry.timestamp).toLocaleTimeString('ko-KR')}] ${entry.name || '익명'}: ${entry.level}점. (키워드: ${entry.keywords})</li>`
+        ).join('');
+    }
 }
 
 // 페이지 로드 시 초기 데이터 불러오기

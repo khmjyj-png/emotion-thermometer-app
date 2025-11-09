@@ -6,7 +6,31 @@ body {
     color: #333;
 }
 
-/* 입력 버튼 스타일 */
+/* 입력 필드 스타일 */
+input[type="text"] {
+    padding: 8px;
+    margin: 5px;
+    width: 80%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* 제출 버튼 스타일 */
+#submitBtn {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+#submitBtn:hover {
+    background-color: #0056b3;
+}
+
+/* 감정 버튼 스타일 */
 .thermometer-input button {
     padding: 10px 15px;
     margin: 5px;
@@ -20,9 +44,11 @@ body {
 .thermometer-input button.selected {
     color: white;
     font-weight: bold;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
 }
 /* 감정 레벨별 색상 */
-.level-1, .level-2.selected { background-color: #4CAF50; } /* 녹색 */
+.level-1.selected { background-color: #4CAF50; } /* 녹색 */
+.level-2.selected { background-color: #8BC34A; } /* 연두색 */
 .level-3.selected { background-color: #FFC107; } /* 노란색 */
 .level-4.selected { background-color: #FF9800; } /* 주황색 */
 .level-5.selected { background-color: #F44336; } /* 빨간색 */
@@ -43,7 +69,6 @@ body {
 
 #thermometerFill {
     width: 100%;
-    /* 높이는 JS로 제어 */
     background: linear-gradient(to top, #4CAF50 25%, #FFC107 50%, #F44336 100%);
     transition: height 0.5s ease-in-out; 
 }
@@ -66,4 +91,18 @@ body {
 .info-message {
     color: #007BFF;
     font-style: italic;
+}
+/* 로그 섹션 스타일 */
+#emotionLog {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+    max-width: 400px;
+    margin: 10px auto;
+    font-size: 0.9em;
+}
+#logSection h3 {
+    margin-top: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
 }
