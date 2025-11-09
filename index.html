@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우리 반 감정 온도계</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>우리 반 감정 온도계 체크인! 🌡️</h1>
+
+    <div class="input-section">
+        <label for="studentName">이름 (선택):</label>
+        <input type="text" id="studentName">
+        
+        <p>오늘 나의 감정 온도는? (1: 차분, 5: 격노)</p>
+        <div class="thermometer-input">
+            <button data-level="1" class="level-1">1 (차분)</button>
+            <button data-level="2" class="level-2">2 (좋음)</button>
+            <button data-level="3" class="level-3">3 (보통)</button>
+            <button data-level="4" class="level-4">4 (짜증)</button>
+            <button data-level="5" class="level-5">5 (격노)</button>
+        </div>
+        
+        <label for="keywords">짧은 키워드 일기:</label>
+        <input type="text" id="keywords" placeholder="오늘 있었던 일이나 기분을 짧게 적어주세요.">
+        
+        <button id="submitBtn">제출하기</button>
+        <p id="message" class="info-message"></p>
+    </div>
+
+    <hr>
+
+    <h2>📊 학급 공동체 평균 감정</h2>
+    <div class="display-section">
+        <div id="classThermometer">
+            <div id="thermometerFill"></div>
+        </div>
+        <div id="statusArea">
+            <div id="statusText"></div>
+            <div id="missionText"></div>
+        </div>
+    </div>
+
+    <div id="logSection">
+        <h3>최근 기록 로그</h3>
+        <ul id="emotionLog"></ul>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
